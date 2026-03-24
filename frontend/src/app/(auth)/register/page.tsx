@@ -5,12 +5,11 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AiOutlineArrowLeft, AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
-import { toast } from 'sonner';
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { isLoading, error, registerUser } = useRegister();
+  const { isLoading, registerUser } = useRegister();
   const { register, handleSubmit, formState: { errors }, watch } = useForm({
     defaultValues: {
       email: '',
@@ -71,7 +70,7 @@ export default function Register() {
 
         <div className="mt-4 text-center text-sm">
           Already have an account?{' '}
-          <Link href="/" className="text-blue-500 hover:underline">
+          <Link href="/login" className="text-blue-500 hover:underline">
             Login
           </Link>
         </div>
