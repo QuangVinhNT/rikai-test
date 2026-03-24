@@ -1,5 +1,7 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
+import { LoginAuthDto } from './dto/login-auth.dto';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 
 @Controller()
@@ -7,27 +9,18 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/register')
-  create(@Body() registerAuthDto: RegisterAuthDto) {
+  register(@Body() registerAuthDto: RegisterAuthDto) {
     return this.authService.register(registerAuthDto);
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.authService.findAll();
-  // }
+  @Post('/login')
+  login(@Body() loginAuthDto: LoginAuthDto) {
+    return this.authService.login(loginAuthDto);
+  }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.authService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-  //   return this.authService.update(+id, updateAuthDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.authService.remove(+id);
-  // }
+  @UseGuards(AuthGuard)
+  @Post('/logout')
+  async logout(@Body('refreshToken') refreshToken: string) {
+    return this.authService.logout(refreshToken);
+  }
 }
