@@ -70,6 +70,7 @@ export class AuthService {
     }
     const payload = {
       userId: userExists.id,
+      role: userExists.role,
     };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload),
