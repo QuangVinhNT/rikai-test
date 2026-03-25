@@ -17,6 +17,17 @@ CREATE TABLE "USERS" (
 );
 
 -- CreateTable
+CREATE TABLE "Session" (
+    "id" SERIAL NOT NULL,
+    "refreshToken" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "CATEGORIES" (
     "id" SERIAL NOT NULL,
     "categoryName" TEXT NOT NULL,
@@ -54,10 +65,16 @@ CREATE UNIQUE INDEX "USERS_username_key" ON "USERS"("username");
 CREATE UNIQUE INDEX "USERS_email_key" ON "USERS"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Session_refreshToken_key" ON "Session"("refreshToken");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "CATEGORIES_categoryName_key" ON "CATEGORIES"("categoryName");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PRODUCTS_productName_key" ON "PRODUCTS"("productName");
+
+-- AddForeignKey
+ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "USERS"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PRODUCTS" ADD CONSTRAINT "PRODUCTS_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "CATEGORIES"("id") ON DELETE CASCADE ON UPDATE CASCADE;

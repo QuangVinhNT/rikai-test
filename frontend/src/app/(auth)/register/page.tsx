@@ -90,7 +90,7 @@ export default function Register() {
                   {...register('password', {
                     required: 'Password is required',
                     minLength: { value: 8, message: 'Minimum 8 characters' },
-                    pattern: { value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, message: 'Must be strong' }
+                    pattern: { value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, message: 'Must have UPPERCASE, lowercase, number and symbol' }
                   })}
                   className={`w-full rounded-xl border bg-gray-50/30 px-4 py-3 text-sm transition-all focus:bg-white focus:outline-none focus:ring-2 ${errors.password ? 'border-red-400 focus:ring-red-100' : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                     }`}
