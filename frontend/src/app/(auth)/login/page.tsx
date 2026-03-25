@@ -1,16 +1,15 @@
 'use client';
-import { useForm } from 'react-hook-form';
-import { useState } from 'react';
-import Link from 'next/link';
-import { AiOutlineArrowLeft } from 'react-icons/ai';
-import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
-import { useLogin } from '@/hooks';
+import { useAuth } from '@/hooks/useAuth';
 import { LoginType } from '@/types';
+import Link from 'next/link';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { AiOutlineArrowLeft, AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 
 export default function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm<LoginType>();
   const [showPassword, setShowPassword] = useState(false);
-  const {isLoading, loginUser} = useLogin();
+  const {isLoggingIn, loginUser} = useAuth();
 
   const onSubmit = async (formData: LoginType) => {
     loginUser(formData);
@@ -30,7 +29,7 @@ export default function Login() {
               type="text"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter username or email"
-              disabled={isLoading}
+              disabled={isLoggingIn}
             />
             {errors.username && <p className="text-red-500 text-sm">{errors.username.message}</p>}
           </div>
@@ -43,7 +42,7 @@ export default function Login() {
                 type={showPassword ? 'text' : 'password'}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter password"
-                disabled={isLoading}
+                disabled={isLoggingIn}
               />
               <button
                 type="button"
@@ -58,10 +57,10 @@ export default function Login() {
 
           <button
             type="submit"
-            disabled={isLoading}
-            className={`w-full bg-blue-500 text-white py-2 rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 cursor-pointer ${isLoading && 'cursor-wait bg-gray-500! hover:bg-gray-500!'}`}
+            disabled={isLoggingIn}
+            className={`w-full bg-blue-500 text-white py-2 rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 cursor-pointer ${isLoggingIn && 'cursor-wait bg-gray-500! hover:bg-gray-500!'}`}
           >
-            {isLoading ? 'Logging in...' : 'Login'}
+            {isLoggingIn ? 'Logging in...' : 'Login'}
           </button>
         </form>
         <div className="mt-4 text-center text-sm">

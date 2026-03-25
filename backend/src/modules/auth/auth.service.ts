@@ -99,7 +99,6 @@ export class AuthService {
         user: {
           id: userExists.id,
           username: userExists.username,
-          email: userExists.email,
         },
       },
     };

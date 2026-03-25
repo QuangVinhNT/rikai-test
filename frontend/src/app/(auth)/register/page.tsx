@@ -1,5 +1,5 @@
 'use client';
-import { useRegister } from '@/hooks';
+import { useAuth } from '@/hooks/useAuth';
 import { RegisterType } from '@/types';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -9,7 +9,7 @@ import { AiOutlineArrowLeft, AiOutlineEye, AiOutlineEyeInvisible } from 'react-i
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { isLoading, registerUser } = useRegister();
+  const {registerUser, isRegistering} = useAuth();
   const { register, handleSubmit, formState: { errors }, watch } = useForm({
     defaultValues: {
       email: '',
@@ -34,12 +34,12 @@ export default function Register() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Email</label>
-              <input type="email" {...register('email', { required: 'Email is required', pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email' } })} className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your email" disabled={isLoading}/>
+              <input type="email" {...register('email', { required: 'Email is required', pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email' } })} className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your email" disabled={isRegistering}/>
               {errors.email && <span className="text-red-500 text-sm">{errors.email.message}</span>}
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Username</label>
-              <input type="text" {...register('username', { required: 'Username is required', minLength: { value: 3, message: 'Minimum 3 characters' } })} className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your username" disabled={isLoading}/>
+              <input type="text" {...register('username', { required: 'Username is required', minLength: { value: 3, message: 'Minimum 3 characters' } })} className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your username" disabled={isRegistering}/>
               {errors.username && <span className="text-red-500 text-sm">{errors.username.message}</span>}
             </div>
           </div>
@@ -47,7 +47,7 @@ export default function Register() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="relative">
               <label className="block text-sm font-medium mb-1">Password</label>
-              <input type={showPassword ? "text" : "password"} {...register('password', { required: 'Password is required', minLength: { value: 8, message: 'Minimum 8 characters' }, pattern: { value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, message: 'Must contain uppercase, lowercase, number, and special character' } })} className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your password" disabled={isLoading}/>
+              <input type={showPassword ? "text" : "password"} {...register('password', { required: 'Password is required', minLength: { value: 8, message: 'Minimum 8 characters' }, pattern: { value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, message: 'Must contain uppercase, lowercase, number, and special character' } })} className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your password" disabled={isRegistering}/>
               <button type="button" className="absolute right-3 top-8 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
               </button>
@@ -55,7 +55,7 @@ export default function Register() {
             </div>
             <div className="relative">
               <label className="block text-sm font-medium mb-1">Confirm Password</label>
-              <input type={showConfirmPassword ? "text" : "password"} {...register('confirmPassword', { required: 'Confirm password is required', validate: (value) => value === password || 'Passwords do not match' })} className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Confirm your password" disabled={isLoading}/>
+              <input type={showConfirmPassword ? "text" : "password"} {...register('confirmPassword', { required: 'Confirm password is required', validate: (value) => value === password || 'Passwords do not match' })} className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Confirm your password" disabled={isRegistering}/>
               <button type="button" className="absolute right-3 top-8 cursor-pointer" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                 {showConfirmPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
               </button>
@@ -63,8 +63,8 @@ export default function Register() {
             </div>
           </div>
 
-          <button disabled={isLoading} type="submit" className={`w-full bg-blue-500 text-white py-2 rounded-lg font-medium hover:bg-blue-600 cursor-pointer ${isLoading && 'cursor-wait bg-gray-500! hover:bg-gray-500!'}`}>
-            {isLoading ? 'Signing Up...' : 'Sign Up'}
+          <button disabled={isRegistering} type="submit" className={`w-full bg-blue-500 text-white py-2 rounded-lg font-medium hover:bg-blue-600 cursor-pointer ${isRegistering && 'cursor-wait bg-gray-500! hover:bg-gray-500!'}`}>
+            {isRegistering ? 'Signing Up...' : 'Sign Up'}
           </button>
         </form>
 

@@ -15,7 +15,7 @@ const Header = () => {
         </ul>
         {user?.username ? (
           <div>
-            <p>Welcome, <span className='underline cursor-pointer'>{user.username}</span>!</p>
+            <p>Welcome, <Link href={'/me'} className='underline hover:text-blue-600'>{user.username}</Link>!</p>
           </div>
         ) : (
           <div className="flex gap-2">

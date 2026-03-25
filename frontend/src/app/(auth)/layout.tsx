@@ -1,5 +1,6 @@
 import { Toaster } from 'sonner';
 import '../globals.css'
+import QueryProvider from '@/providers/QueryProvider';
 export default function AuthLayout({
   children,
 }: Readonly<{
@@ -12,7 +13,9 @@ export default function AuthLayout({
     >
       <body className="min-h-full flex flex-col">
         <section className="min-h-screen flex items-center justify-center bg-gray-100">
-          {children}
+          <QueryProvider>
+            {children}
+          </QueryProvider>
         </section>
         <Toaster position='top-center'/>
       </body>

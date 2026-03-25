@@ -4,7 +4,6 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 interface IUserStore {
   id: number;
   username: string;
-  email: string;
 }
 
 type UserStore = {
