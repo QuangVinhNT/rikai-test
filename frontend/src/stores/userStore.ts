@@ -21,7 +21,6 @@ export const userStore = create<UserStore>()(
       setAuth: (user: IUserStore | null, token: string) => set({ user, accessToken: token }),
       logout: () => {
         set({ user: null, accessToken: null });
-        localStorage.removeItem('accessToken');
       }
     }),
     {

@@ -16,11 +16,12 @@ export const useAuth = () => {
       const { user, accessToken } = response.data;
       setAuth(user, accessToken);
       toast.success(response.message);
+      queryClient.clear();
       router.push('/');
       router.refresh();
     },
     onError: (error: any) => {
-      const message = error.data.message || 'An error occured!';
+      const message = error?.data.message || 'An error occured!';
       toast.error(message);
     }
   });
@@ -29,11 +30,28 @@ export const useAuth = () => {
     mutationFn: authService.register,
     onSuccess: (response) => {
       toast.success(response.message);
-      router.push('/login')
+      queryClient.clear();
+      router.push('/login');
       router.refresh();
     },
     onError: (error: any) => {
-      const message = error.data.message || 'An error occured!';
+      const message = error?.data.message || 'An error occured!';
+      toast.error(message);
+    }
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: authService.logout,
+    onSuccess: (response) => {
+      console.log(response)
+      toast.success(response.message);
+      logout();
+      queryClient.clear();
+      router.push('/');
+      router.refresh();
+    },
+    onError: (error: any) => {
+      const message = error?.data.message || 'An error occured!';
       toast.error(message);
     }
   });
@@ -45,5 +63,8 @@ export const useAuth = () => {
     registerUser: registerMutation.mutate,
     isRegistering: registerMutation.isPending,
     registerError: registerMutation.error,
+    logoutUser: logoutMutation.mutate,
+    isLoggingOut: logoutMutation.isPending,
+    logoutError: logoutMutation.error
   };
 };

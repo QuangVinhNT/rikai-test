@@ -1,3 +1,4 @@
+import { userStore } from '@/stores';
 import axios from "axios";
 
 const axiosInstance = axios.create({
@@ -11,7 +12,7 @@ const axiosInstance = axios.create({
 // Interceptor xử lý lỗi hoặc gắn token
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
+    const token = userStore.getState().accessToken;
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }

@@ -108,7 +108,7 @@ export class AuthService {
     try {
       await this.prismaService.session.delete({
         where: {
-          refreshToken,
+          refreshToken: refreshToken,
         },
       });
       return { message: 'Logout successfully!' };

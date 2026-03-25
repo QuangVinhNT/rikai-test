@@ -1,10 +1,16 @@
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
-import { AuthGuard } from './auth.guard';
+import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { RegisterAuthDto } from './dto/register-auth.dto';
-import type { Response } from 'express';
-import { ConfigService } from '@nestjs/config';
+
+interface RequestWithCookies extends Request {
+  cookies: {
+    refreshToken?: string;
+    [key: string]: string | undefined;
+  };
+}
 
 @Controller()
 export class AuthController {
@@ -40,9 +46,12 @@ export class AuthController {
     };
   }
 
-  @UseGuards(AuthGuard)
   @Post('/logout')
-  async logout(@Body('refreshToken') refreshToken: string) {
+  async logout(@Req() req: RequestWithCookies) {
+    const refreshToken = req.cookies?.['refreshToken'];
+    if (!refreshToken || refreshToken.trim() === '') {
+      return { message: 'Logout successfully!' };
+    }
     return this.authService.logout(refreshToken);
   }
 }

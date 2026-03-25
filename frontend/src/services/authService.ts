@@ -11,8 +11,8 @@ export const authService = {
     const response = await axiosInstance.post('/login', payload);
     return response.data;
   },
-  logout: async (refreshToken: string): Promise<{message: string}> => {
-    const response = await axiosInstance.post('/logout', refreshToken);
+  logout: async (): Promise<{message: string}> => {
+    const response = await axiosInstance.post('/logout');
     return response.data;
   }
 }

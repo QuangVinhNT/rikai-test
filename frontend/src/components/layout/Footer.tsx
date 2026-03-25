@@ -1,47 +1,61 @@
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-4">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+    <footer className="bg-white border-t border-gray-100 pt-16 pb-8">
+      <div className="container mx-auto px-4 sm:px-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-16">
+          {/* Brand Section */}
+          <div className="col-span-2 lg:col-span-2">
+            <h3 className="text-xl font-bold tracking-tight text-blue-600 mb-4">LOGO</h3>
+            <p className="text-sm text-gray-500 max-w-xs leading-relaxed">
+              Making the world a better place through constructing elegant hierarchies and functional interfaces.
+            </p>
+          </div>
+
+          {/* Links Section 1 */}
           <div>
-            <h3 className="font-bold mb-4">Product</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><a href="#" className="hover:text-white">Features</a></li>
-              <li><a href="#" className="hover:text-white">Pricing</a></li>
-              <li><a href="#" className="hover:text-white">Security</a></li>
+            <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-5">Product</h4>
+            <ul className="space-y-3">
+              <li><a href="#" className="text-sm text-gray-500 hover:text-blue-600 transition-colors">Features</a></li>
+              <li><a href="#" className="text-sm text-gray-500 hover:text-blue-600 transition-colors">Pricing</a></li>
+              <li><a href="#" className="text-sm text-gray-500 hover:text-blue-600 transition-colors">Security</a></li>
             </ul>
           </div>
+
+          {/* Links Section 2 */}
           <div>
-            <h3 className="font-bold mb-4">Company</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><a href="#" className="hover:text-white">About</a></li>
-              <li><a href="#" className="hover:text-white">Blog</a></li>
-              <li><a href="#" className="hover:text-white">Careers</a></li>
+            <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-5">Company</h4>
+            <ul className="space-y-3">
+              <li><a href="#" className="text-sm text-gray-500 hover:text-blue-600 transition-colors">About</a></li>
+              <li><a href="#" className="text-sm text-gray-500 hover:text-blue-600 transition-colors">Blog</a></li>
+              <li><a href="#" className="text-sm text-gray-500 hover:text-blue-600 transition-colors">Careers</a></li>
             </ul>
           </div>
+
+          {/* Links Section 3 */}
           <div>
-            <h3 className="font-bold mb-4">Legal</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><a href="#" className="hover:text-white">Privacy</a></li>
-              <li><a href="#" className="hover:text-white">Terms</a></li>
-              <li><a href="#" className="hover:text-white">Cookies</a></li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-bold mb-4">Follow</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><a href="#" className="hover:text-white">Twitter</a></li>
-              <li><a href="#" className="hover:text-white">LinkedIn</a></li>
-              <li><a href="#" className="hover:text-white">GitHub</a></li>
+            <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-5">Social</h4>
+            <ul className="space-y-3">
+              <li><a href="#" className="text-sm text-gray-500 hover:text-blue-600 transition-colors">Twitter</a></li>
+              <li><a href="#" className="text-sm text-gray-500 hover:text-blue-600 transition-colors">LinkedIn</a></li>
+              <li><a href="#" className="text-sm text-gray-500 hover:text-blue-600 transition-colors">GitHub</a></li>
             </ul>
           </div>
         </div>
-        <div className="border-t border-gray-800 pt-4 text-center text-sm text-gray-400">
-          <p>&copy; 2024 Your Company. All rights reserved.</p>
+
+        {/* Bottom Section */}
+        <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-gray-400">
+            &copy; {new Date().getFullYear()} Your Company. All rights reserved.
+          </p>
+          <div className="flex gap-6">
+            <a href="#" className="text-xs text-gray-400 hover:text-gray-600 transition-colors">Privacy Policy</a>
+            <a href="#" className="text-xs text-gray-400 hover:text-gray-600 transition-colors">Terms of Service</a>
+            <a href="#" className="text-xs text-gray-400 hover:text-gray-600 transition-colors">Cookies</a>
+          </div>
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;

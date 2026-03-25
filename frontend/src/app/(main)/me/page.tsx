@@ -1,4 +1,5 @@
 'use client';
+import { useAuth } from '@/hooks/useAuth';
 import { userStore } from '@/stores';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -12,17 +13,15 @@ interface IFormInput {
 export default function Me() {
   const { user } = userStore();
   const [isEditing, setIsEditing] = useState(false);
-  
-  // Khởi tạo React Hook Form
-  const { register, handleSubmit, reset, setValue } = useForm<IFormInput>({
+  const { register, handleSubmit, reset } = useForm<IFormInput>({
     defaultValues: {
       username: user?.username || '',
       email: 'example@gmail.com',
-      fullName: 'Bùi Xuân Huấn', // Giá trị giả lập
+      fullName: 'Example User',
     }
   });
+  const {logoutUser, isLoggingOut} = useAuth()
 
-  // Cập nhật lại form khi dữ liệu user từ store thay đổi
   useEffect(() => {
     if (user) {
       reset({
@@ -35,9 +34,12 @@ export default function Me() {
 
   const onSubmit = (data: IFormInput) => {
     console.log("Dữ liệu gửi đi:", data);
-    // Gọi API update ở đây...
-    setIsEditing(false); // Lưu xong thì tắt chế độ edit
+    setIsEditing(false);
   };
+
+  const handleLogout = () => {
+    logoutUser()
+  }
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] p-4 md:p-8">
@@ -68,7 +70,7 @@ export default function Me() {
             </div>
             <button 
               type="button"
-              // onClick={handleLogout}
+              onClick={handleLogout}
               className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-red-600 border border-red-600 text-white rounded-2xl text-sm font-semibold hover:bg-red-50 hover:text-red-600 transition-all shadow-sm mt-2 cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
