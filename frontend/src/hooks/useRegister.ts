@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { RegisterType } from '@/types';
 import axiosInstance from '@/apis/axiosInstance';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 export const useRegister = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const registerUser = async (payload: RegisterType) => {
     setIsLoading(true);
@@ -14,9 +16,11 @@ export const useRegister = () => {
       const res = await axiosInstance.post('/register', payload);
       const result = { success: true, data: res.data };
       toast.success(result.data.message);
+      router.push('/login');
+      router.refresh();
       return result;
     } catch (err: any) {
-      const message = err.data.message || 'Đã có lỗi xảy ra';
+      const message = err.data.message || 'An error occured!';
       setError(message);
       toast.error(message)
       return { success: false, error: message };

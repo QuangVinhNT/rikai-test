@@ -4,6 +4,11 @@ type RegisterType = {
   password: string
 }
 
+type LoginType = {
+  username: string,
+  password: string
+}
+
 export type {
-  RegisterType
+  RegisterType, LoginType
 }

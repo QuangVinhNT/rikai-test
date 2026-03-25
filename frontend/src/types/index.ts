@@ -1,5 +1,5 @@
-import { RegisterType } from './auth';
+import { LoginType, RegisterType } from './auth';
 
 export type {
-  RegisterType
+  RegisterType, LoginType
 }

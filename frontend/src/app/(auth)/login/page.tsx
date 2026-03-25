@@ -4,25 +4,16 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
-
-interface LoginFormInputs {
-  usernameOrEmail: string;
-  password: string;
-}
+import { useLogin } from '@/hooks';
+import { LoginType } from '@/types';
 
 export default function Login() {
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>();
-  const [isLoading, setIsLoading] = useState(false);
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginType>();
   const [showPassword, setShowPassword] = useState(false);
+  const {isLoading, loginUser} = useLogin();
 
-  const onSubmit = async (data: LoginFormInputs) => {
-    setIsLoading(true);
-    try {
-      // Handle login logic here
-      console.log(data);
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = async (formData: LoginType) => {
+    loginUser(formData);
   };
 
   return (
@@ -35,12 +26,13 @@ export default function Login() {
           <div>
             <label className="block text-sm font-medium mb-1">Username or Email</label>
             <input
-              {...register('usernameOrEmail', { required: 'Required field' })}
+              {...register('username', { required: 'Required field' })}
               type="text"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter username or email"
+              disabled={isLoading}
             />
-            {errors.usernameOrEmail && <p className="text-red-500 text-sm">{errors.usernameOrEmail.message}</p>}
+            {errors.username && <p className="text-red-500 text-sm">{errors.username.message}</p>}
           </div>
 
           <div>
@@ -51,6 +43,7 @@ export default function Login() {
                 type={showPassword ? 'text' : 'password'}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter password"
+                disabled={isLoading}
               />
               <button
                 type="button"
@@ -66,7 +59,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-500 text-white py-2 rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 cursor-pointer"
+            className={`w-full bg-blue-500 text-white py-2 rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 cursor-pointer ${isLoading && 'cursor-wait bg-gray-500! hover:bg-gray-500!'}`}
           >
             {isLoading ? 'Logging in...' : 'Login'}
           </button>

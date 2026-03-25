@@ -74,10 +74,15 @@ export class AuthService {
     };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload),
-      this.jwtService.signAsync(payload, {
-        secret: process.env.JWT_REFRESH_KEY,
-        expiresIn: '7d',
-      }),
+      this.jwtService.signAsync(
+        {
+          userId: userExists.id,
+        },
+        {
+          secret: process.env.JWT_REFRESH_KEY,
+          expiresIn: '7d',
+        },
+      ),
     ]);
     await this.prismaService.session.create({
       data: {
