@@ -97,7 +97,6 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const refreshToken = req.cookies?.['refreshToken'];
-    console.log(refreshToken);
     const isProduction = this.configService.get('NODE_ENV') === 'production';
     const cookieOptions = {
       httpOnly: true,

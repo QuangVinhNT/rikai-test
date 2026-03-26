@@ -29,23 +29,35 @@ export class AuthService {
     }
     const saltOrRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltOrRounds);
-    const newUser = await this.prismaService.user.create({
-      data: {
-        username,
-        email,
-        fullName,
-        password: hashedPassword,
-      },
-      select: {
-        username: true,
-        email: true,
-      },
-    });
-
-    return {
-      message: 'Register successfully!',
-      data: newUser,
-    };
+    try {
+      const newUser = await this.prismaService.user.create({
+        data: {
+          username,
+          email,
+          fullName,
+          password: hashedPassword,
+        },
+        select: {
+          username: true,
+          email: true,
+        },
+      });
+      return {
+        success: true,
+        message: 'Register successfully!',
+        data: newUser,
+      };
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'code' in error) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException(`Not found error!`);
+        }
+        if (error.code === 'P2002') {
+          throw new ConflictException('Exist data error!');
+        }
+      }
+      throw error;
+    }
   }
 
   async login(loginAuthDto: LoginAuthDto) {
@@ -85,25 +97,38 @@ export class AuthService {
         },
       ),
     ]);
-    await this.prismaService.session.create({
-      data: {
-        refreshToken,
-        userId: userExists.id,
-        expiresAt: addDays(new Date(), 7),
-      },
-    });
-    return {
-      message: 'Login successfully!',
-      data: {
-        accessToken,
-        refreshToken,
-        user: {
-          id: userExists.id,
-          username: userExists.username,
-          role: userExists.role,
+    try {
+      await this.prismaService.session.create({
+        data: {
+          refreshToken,
+          userId: userExists.id,
+          expiresAt: addDays(new Date(), 7),
         },
-      },
-    };
+      });
+      return {
+        success: true,
+        message: 'Login successfully!',
+        data: {
+          accessToken,
+          refreshToken,
+          user: {
+            id: userExists.id,
+            username: userExists.username,
+            role: userExists.role,
+          },
+        },
+      };
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'code' in error) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException(`Not found error!`);
+        }
+        if (error.code === 'P2002') {
+          throw new ConflictException('Exist data error!');
+        }
+      }
+      throw error;
+    }
   }
 
   async logout(refreshToken: string) {
@@ -113,10 +138,16 @@ export class AuthService {
           refreshToken: refreshToken,
         },
       });
-      return { message: 'Logout successfully!' };
+      return {
+        message: 'Logout successfully!',
+        success: true,
+      };
     } catch (error) {
       console.log(error);
-      return { message: 'Logout successfully!' };
+      return {
+        message: 'Logout successfully!',
+        success: true,
+      };
     }
   }
 
@@ -143,6 +174,7 @@ export class AuthService {
     };
     const accessToken = await this.jwtService.signAsync(payload);
     return {
+      success: true,
       message: 'Re-login successfully!',
       data: {
         accessToken,

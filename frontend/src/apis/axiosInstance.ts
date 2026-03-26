@@ -1,5 +1,10 @@
 import axios from "axios";
 
+interface FailedRequest {
+  resolve: (token: string | null) => void;
+  reject: (error: any) => void; // Lỗi từ Axios thường để any hoặc AxiosError
+}
+
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true, // gửi cookie đi cùng request
@@ -9,7 +14,7 @@ const axiosInstance = axios.create({
 });
 
 let isRefreshing = false;
-let failedQueue: any[] = [];
+let failedQueue: FailedRequest[] = [];
 
 const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach((prom) => {

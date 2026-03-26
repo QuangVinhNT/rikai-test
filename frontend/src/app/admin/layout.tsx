@@ -1,4 +1,4 @@
-import { AdminGuard, Sidebar } from '@/components/layout';
+import { AdminGuard, AdminHeader, Sidebar } from '@/components/layout';
 import QueryProvider from '@/providers/QueryProvider';
 import { Toaster } from 'sonner';
 import '../globals.css';
@@ -8,7 +8,6 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-
   return (
     <html
       lang="en"
@@ -22,23 +21,13 @@ export default async function AdminLayout({
               <Sidebar />
 
               {/* Main Content Area */}
-              <div className="p-4 ml-64">
-                {/* Top Header UI */}
-                <header className="flex items-center justify-between mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                  <h2 className="text-lg font-semibold text-gray-800">Hệ thống quản trị</h2>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right hidden sm:block">
-                      <p className="text-sm font-medium">Admin Name</p>
-                      <p className="text-xs text-gray-500">Quản trị viên</p>
-                    </div>
-                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
-                      A
-                    </div>
-                  </div>
-                </header>
-
+              <div className="ml-64 h-screen flex flex-col overflow-hidden bg-gray-50">
+                <div className="p-4 pb-0 shrink-0">
+                  {/* Top Header UI */}
+                  <AdminHeader />
+                </div>
                 {/* Nội dung trang con (page.tsx) sẽ hiển thị ở đây */}
-                <main>
+                <main className="flex-1 overflow-hidden p-4 min-h-0">
                   {children}
                 </main>
               </div>

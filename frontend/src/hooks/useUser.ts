@@ -13,3 +13,12 @@ export const useGetUsers = (page?: number, limit?: number) => {
     placeholderData: (prev) => prev
   });
 };
+
+export const useGetUser = (id: number | null) => {
+  return useQuery({
+    queryKey: ['user', id],
+    queryFn: () => userService.getUser(id!),
+    enabled: !!id,
+    placeholderData: (prev) => prev
+  });
+};
