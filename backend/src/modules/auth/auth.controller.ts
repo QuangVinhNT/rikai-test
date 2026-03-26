@@ -1,9 +1,18 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { RegisterAuthDto } from './dto/register-auth.dto';
+import { RefreshGuard } from './guards/refresh.guard';
 
 interface RequestWithCookies extends Request {
   cookies: {
@@ -79,5 +88,30 @@ export class AuthController {
       return { message: 'Logout successfully!' };
     }
     return this.authService.logout(refreshToken);
+  }
+
+  @UseGuards(RefreshGuard)
+  @Get('/refresh')
+  async refresh(
+    @Req() req: RequestWithCookies,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = req.cookies?.['refreshToken'];
+    console.log(refreshToken);
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'strict' as const,
+      path: '/',
+    };
+    const result = await this.authService.refreshTokens(refreshToken);
+    res.cookie('accessToken', result.data.accessToken, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000,
+    });
+    return {
+      message: result.message,
+    };
   }
 }

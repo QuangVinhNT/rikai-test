@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -117,5 +118,35 @@ export class AuthService {
       console.log(error);
       return { message: 'Logout successfully!' };
     }
+  }
+
+  async refreshTokens(refreshToken: string | undefined) {
+    const token = await this.prismaService.session.findUnique({
+      where: {
+        refreshToken: refreshToken,
+      },
+    });
+    if (!token) {
+      throw new UnauthorizedException('Token is not exist');
+    }
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: token.userId,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('User is not exist!');
+    }
+    const payload = {
+      userId: user.id,
+      role: user.role,
+    };
+    const accessToken = await this.jwtService.signAsync(payload);
+    return {
+      message: 'Re-login successfully!',
+      data: {
+        accessToken,
+      },
+    };
   }
 }
