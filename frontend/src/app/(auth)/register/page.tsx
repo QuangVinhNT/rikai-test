@@ -1,5 +1,5 @@
 'use client';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks';
 import { RegisterType } from '@/types';
 import Link from 'next/link';
 import { useState } from 'react';

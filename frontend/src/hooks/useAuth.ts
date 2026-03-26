@@ -1,3 +1,4 @@
+'use client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authService } from '@/services/authService';
 import { userStore } from '@/stores';
@@ -24,7 +25,7 @@ export const useAuth = () => {
       }
     },
     onError: (error: any) => {
-      const message = error?.data.message || 'An error occured!';
+      const message = error?.data?.message || 'An error occured!';
       toast.error(message);
     }
   });
@@ -38,7 +39,7 @@ export const useAuth = () => {
       router.push('/login');
     },
     onError: (error: any) => {
-      const message = error?.data.message || 'An error occured!';
+      const message = error?.data?.message || 'An error occured!';
       toast.error(message);
     }
   });
@@ -54,7 +55,7 @@ export const useAuth = () => {
       router.push('/login');
     },
     onError: (error: any) => {
-      const message = error?.data.message || 'An error occured!';
+      const message = error?.data?.message || 'An error occured!';
       toast.error(message);
     }
   });

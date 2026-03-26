@@ -12,10 +12,12 @@ export class UsersService {
         take: limit,
         orderBy: [{ fullName: 'asc' }, { createdAt: 'desc' }],
         select: {
+          id: true,
           fullName: true,
           username: true,
           email: true,
           role: true,
+          isLocked: true,
           createdAt: true,
         },
       }),

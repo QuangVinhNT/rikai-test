@@ -8,6 +8,8 @@ import { RegisterAuthDto } from './dto/register-auth.dto';
 interface RequestWithCookies extends Request {
   cookies: {
     refreshToken?: string;
+    accessToken?: string;
+    userRole?: string;
     [key: string]: string | undefined;
   };
 }
