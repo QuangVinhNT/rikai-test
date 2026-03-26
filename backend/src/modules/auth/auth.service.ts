@@ -99,6 +99,7 @@ export class AuthService {
         user: {
           id: userExists.id,
           username: userExists.username,
+          role: userExists.role,
         },
       },
     };

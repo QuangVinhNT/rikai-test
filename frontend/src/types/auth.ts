@@ -23,7 +23,8 @@ type LoginResponse = {
     accessToken: string,
     user: {
       id: number,
-      username: string
+      username: string,
+      role: 'USER' | 'ADMIN'
     }
   }
 }

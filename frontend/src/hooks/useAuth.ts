@@ -1,4 +1,3 @@
-// hooks/useAuth.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authService } from '@/services/authService';
 import { userStore } from '@/stores';
@@ -13,12 +12,16 @@ export const useAuth = () => {
   const loginMutation = useMutation({
     mutationFn: authService.login,
     onSuccess: (response) => {
-      const { user, accessToken } = response.data;
-      setAuth(user, accessToken);
+      const { user } = response.data;
+      setAuth(user);
       toast.success(response.message);
       queryClient.clear();
-      router.push('/');
       router.refresh();
+      if (user.role === 'ADMIN') {
+        router.replace('/admin/users');
+      } else if (user.role === 'USER') {
+        router.replace('/');
+      }
     },
     onError: (error: any) => {
       const message = error?.data.message || 'An error occured!';
@@ -31,8 +34,8 @@ export const useAuth = () => {
     onSuccess: (response) => {
       toast.success(response.message);
       queryClient.clear();
-      router.push('/login');
       router.refresh();
+      router.push('/login');
     },
     onError: (error: any) => {
       const message = error?.data.message || 'An error occured!';
@@ -43,12 +46,12 @@ export const useAuth = () => {
   const logoutMutation = useMutation({
     mutationFn: authService.logout,
     onSuccess: (response) => {
-      console.log(response)
+      console.log(response);
       toast.success(response.message);
       logout();
       queryClient.clear();
-      router.push('/');
       router.refresh();
+      router.push('/login');
     },
     onError: (error: any) => {
       const message = error?.data.message || 'An error occured!';

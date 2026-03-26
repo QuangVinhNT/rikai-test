@@ -2,6 +2,7 @@ import { Footer, Header } from '@/components/layout';
 import type { Metadata } from "next";
 import "../globals.css";
 import QueryProvider from '@/providers/QueryProvider';
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -24,6 +25,7 @@ export default function RootLayout({
           {children}
         </QueryProvider>
         <Footer />
+        <Toaster position='top-center'/>
       </body>
     </html>
   );

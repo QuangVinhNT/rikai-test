@@ -4,12 +4,12 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 interface IUserStore {
   id: number;
   username: string;
+  role: 'USER' | 'ADMIN';
 }
 
 type UserStore = {
   user: IUserStore | null;
-  accessToken: string | null;
-  setAuth: (user: IUserStore | null, token: string) => void;
+  setAuth: (user: IUserStore | null) => void;
   logout: () => void;
 };
 
@@ -17,10 +17,10 @@ export const userStore = create<UserStore>()(
   persist(
     (set) => ({
       user: null,
-      accessToken: null,
-      setAuth: (user: IUserStore | null, token: string) => set({ user, accessToken: token }),
+      _hasHydrated: false,
+      setAuth: (user: IUserStore | null) => set({ user }),
       logout: () => {
-        set({ user: null, accessToken: null });
+        set({ user: null });
       }
     }),
     {
@@ -28,7 +28,6 @@ export const userStore = create<UserStore>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         user: state.user,
-        accessToken: state.accessToken
       }),
     }
   )

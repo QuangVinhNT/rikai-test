@@ -12,10 +12,10 @@ const axiosInstance = axios.create({
 // Interceptor xử lý lỗi hoặc gắn token
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = userStore.getState().accessToken;
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
+    // const token = userStore.getState().accessToken;
+    // if (token) {
+    //   config.headers['Authorization'] = `Bearer ${token}`;
+    // }
     return config;
   },
   (err) => Promise.reject(err)

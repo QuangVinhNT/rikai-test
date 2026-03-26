@@ -31,24 +31,48 @@ export class AuthController {
   ) {
     const result = await this.authService.login(loginAuthDto);
     const isProduction = this.configService.get('NODE_ENV') === 'production';
-    response.cookie('refreshToken', result.data.refreshToken, {
+    const cookieOptions = {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'strict',
+      sameSite: 'strict' as const,
+      path: '/',
+    };
+    response.cookie('refreshToken', result.data.refreshToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    response.cookie('accessToken', result.data.accessToken, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000,
+    });
+    response.cookie('userRole', result.data.user.role, {
+      ...cookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     return {
       message: result.message,
       data: {
-        accessToken: result.data.accessToken,
         user: result.data.user,
       },
     };
   }
 
   @Post('/logout')
-  async logout(@Req() req: RequestWithCookies) {
+  async logout(
+    @Req() req: RequestWithCookies,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const refreshToken = req.cookies?.['refreshToken'];
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'strict' as const,
+      path: '/',
+    };
+    res.clearCookie('accessToken', cookieOptions);
+    res.clearCookie('refreshToken', cookieOptions);
+    res.clearCookie('userRole', cookieOptions);
     if (!refreshToken || refreshToken.trim() === '') {
       return { message: 'Logout successfully!' };
     }
