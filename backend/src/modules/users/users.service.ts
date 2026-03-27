@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import bcrypt from 'bcrypt';
@@ -32,7 +28,7 @@ export class UsersService {
 
     return {
       success: true,
-      message: 'Get all user success!',
+      message: 'Get all users successfully!',
       data,
       meta: {
         total,
@@ -75,69 +71,45 @@ export class UsersService {
       const saltOrRounds = 10;
       hashedPassword = await bcrypt.hash(password, saltOrRounds);
     }
-    try {
-      const updateResult = await this.prismaService.user.update({
-        where: {
-          id,
-        },
-        data: {
-          fullName,
-          email,
-          isLocked,
-          password: hashedPassword,
-        },
-        select: {
-          id: true,
-          username: true,
-          email: true,
-          fullName: true,
-          isLocked: true,
-        },
-      });
-      return {
-        success: true,
-        message: 'Update successfully',
-        data: updateResult,
-      };
-    } catch (error: unknown) {
-      if (error && typeof error === 'object' && 'code' in error) {
-        if (error.code === 'P2025') {
-          throw new NotFoundException(`Not found error!`);
-        }
-        if (error.code === 'P2002') {
-          throw new ConflictException('Exist data error!');
-        }
-      }
-      throw error;
-    }
+    const updateResult = await this.prismaService.user.update({
+      where: {
+        id,
+      },
+      data: {
+        fullName: fullName?.trim(),
+        email: email?.trim(),
+        isLocked,
+        password: hashedPassword,
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        fullName: true,
+        isLocked: true,
+      },
+    });
+    return {
+      success: true,
+      message: 'Update successfully',
+      data: updateResult,
+    };
   }
 
   async remove(id: number) {
-    try {
-      const deleteResult = await this.prismaService.user.delete({
-        where: {
-          id,
-        },
-        select: {
-          id: true,
-          username: true,
-        },
-      });
-      return {
-        success: true,
-        message: 'Delete successfully',
-        data: deleteResult,
-      };
-    } catch (error: unknown) {
-      if (error && typeof error === 'object' && 'code' in error) {
-        if (error.code === 'P2025') {
-          throw new NotFoundException(`Not found error!`);
-        }
-        if (error.code === 'P2002') {
-          throw new ConflictException('Exist data error!');
-        }
-      }
-      throw error;
-    }
+    const deleteResult = await this.prismaService.user.delete({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        username: true,
+      },
+    });
+    return {
+      success: true,
+      message: 'Delete successfully',
+      data: deleteResult,
+    };
   }
 }
