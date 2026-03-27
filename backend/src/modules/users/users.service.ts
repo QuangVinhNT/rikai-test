@@ -105,24 +105,32 @@ export class UsersService {
     }
   }
 
-  // async delete(id: number) {
-  //   try {
-  //     const deleteResult = await this.prismaService.user.delete({
-  //       where: {
-  //         id,
-  //       },
-  //     });
-
-  //   } catch (error: unknown) {
-  //     if (error && typeof error === 'object' && 'code' in error) {
-  //       if (error.code === 'P2025') {
-  //         throw new NotFoundException(`Not found error!`);
-  //       }
-  //       if (error.code === 'P2002') {
-  //         throw new ConflictException('Exist data error!');
-  //       }
-  //     }
-  //     throw error;
-  //   }
-  // }
+  async remove(id: number) {
+    try {
+      const deleteResult = await this.prismaService.user.delete({
+        where: {
+          id,
+        },
+        select: {
+          id: true,
+          username: true,
+        },
+      });
+      return {
+        success: true,
+        message: 'Delete successfully',
+        data: deleteResult,
+      };
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'code' in error) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException(`Not found error!`);
+        }
+        if (error.code === 'P2002') {
+          throw new ConflictException('Exist data error!');
+        }
+      }
+      throw error;
+    }
+  }
 }
