@@ -65,7 +65,7 @@ export default function Users() {
 
       {/* 1. Toolbar - Cố định (shrink-0) */}
       <div className="p-6 border-b border-gray-100 shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h3 className="text-xl font-bold text-gray-800">User List</h3>
+        <h1 className="text-3xl font-black text-gray-900 tracking-tight">Users</h1>
         {/* <div className="relative">
           <HiOutlineSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input

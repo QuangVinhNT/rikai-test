@@ -5,14 +5,16 @@ import { usePathname } from 'next/navigation';
 import { 
   HiOutlineViewGrid, 
   HiOutlineUsers, 
-  HiOutlineCog, 
-  HiOutlineLogout 
+  HiOutlineInbox, 
+  HiOutlineLogout,
+  HiViewBoards
 } from 'react-icons/hi';
 
 const MENU_ITEMS = [
   { name: 'Dashboard', href: '/admin', icon: HiOutlineViewGrid },
   { name: 'Users', href: '/admin/users', icon: HiOutlineUsers },
-  { name: 'Settings', href: '/admin/settings', icon: HiOutlineCog },
+  { name: 'Categories', href: '/admin/categories', icon: HiViewBoards },
+  { name: 'Products', href: '/admin/products', icon: HiOutlineInbox },
 ];
 
 export default function Sidebar() {
@@ -56,7 +58,7 @@ export default function Sidebar() {
         <div className="pt-4 mt-4 border-t border-gray-200">
           <button className="flex items-center justify-center w-full p-3 text-red-600 bg-red-50 transition-colors rounded-lg hover:bg-red-600 hover:text-white group font-medium cursor-pointer" onClick={handleLogout}>
             <HiOutlineLogout className="w-6 h-6" />
-            <span className="ml-3">Logout</span>
+            <span className="ml-3">Sign Out</span>
           </button>
         </div>
       </div>

@@ -5,7 +5,7 @@ import { userStore } from '@/stores';
 const AdminHeader = () => {
   const {user} = userStore();
   return (
-    <header className="flex items-center justify-between mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+    <header className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-100">
       <h2 className="text-lg font-semibold text-gray-800">Management System</h2>
       <div className="flex items-center gap-3">
         <div className="text-right hidden sm:block">
