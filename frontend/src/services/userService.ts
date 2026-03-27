@@ -12,7 +12,7 @@ export const userService = {
     return response.data;
   },
 
-  updateUser: async(id: number, payload: Pick<User, 'fullName' | 'email'>): Promise<BaseResponse<Omit<User, 'password' | 'createdAt' | 'updatedAt' | 'role'>>> => {
+  updateUser: async(id: number, payload: Partial<Pick<User, 'fullName' | 'email' | 'password'>>): Promise<BaseResponse<Omit<User, 'password' | 'createdAt' | 'updatedAt' | 'role'>>> => {
     const response = await axiosInstance.put(`/users/${id}`, payload);
     return response.data;
   },

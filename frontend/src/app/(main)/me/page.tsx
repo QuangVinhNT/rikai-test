@@ -1,8 +1,12 @@
 'use client';
+import { Loading } from '@/components/ui';
+import { useGetUser, useUser } from '@/hooks';
 import { useAuth } from '@/hooks/useAuth';
 import { userStore } from '@/stores';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 interface IFormInput {
   username: string;
@@ -11,35 +15,50 @@ interface IFormInput {
 }
 
 export default function Me() {
+  const router = useRouter();
   const { user } = userStore();
+  const { data } = useGetUser(Number(user?.id));
+  const { updateUser } = useUser();
   const [isEditing, setIsEditing] = useState(false);
   const { register, handleSubmit, reset } = useForm<IFormInput>({
     defaultValues: {
       username: user?.username || '',
-      email: 'example@gmail.com',
-      fullName: 'Example User',
+      email: data?.data.email || '',
+      fullName: data?.data.fullName || '',
     }
   });
-  const {logoutUser, isLoggingOut} = useAuth()
+  const { logoutUser } = useAuth();
 
   useEffect(() => {
     if (user) {
       reset({
         username: user.username,
-        email: 'example@gmail.com',
-        fullName: 'Example User',
+        email: data?.data.email,
+        fullName: data?.data.fullName,
       });
     }
-  }, [user, reset]);
+  }, [user, reset, data]);
 
   const onSubmit = (data: IFormInput) => {
-    console.log("Dữ liệu gửi đi:", data);
-    setIsEditing(false);
+    try {
+      updateUser(
+        { id: Number(user?.id), payload: { email: data.email, fullName: data.fullName } },
+        {
+          onSuccess: () => {
+            setIsEditing(false);
+          }
+        }
+      );
+    } catch (error) {
+      toast.error('Action failed');
+    }
   };
 
   const handleLogout = () => {
-    logoutUser()
-  }
+    logoutUser();
+  };
+
+  if (!data) return <Loading />;
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] p-4 md:p-8">
@@ -50,7 +69,7 @@ export default function Me() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* CỘT TRÁI: AVATAR CARD */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 text-center">
@@ -59,16 +78,16 @@ export default function Me() {
                   {user?.username?.charAt(0).toUpperCase()}
                 </div>
               </div>
-              <h2 className="text-xl font-bold text-gray-800">{user?.username}</h2>
-              <p className="text-sm text-gray-500 mb-6">{'example@gmail.com'}</p>
-              
+              <h2 className="text-xl font-bold text-gray-800">{data.data.fullName || user?.username}</h2>
+              <p className="text-sm text-gray-500 mb-6">{data.data.email}</p>
+
               <div className="flex flex-col gap-2">
                 <button type="button" className="w-full py-2 px-4 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-all">
                   Upload New Photo
                 </button>
               </div>
             </div>
-            <button 
+            <button
               type="button"
               onClick={handleLogout}
               className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-red-600 border border-red-600 text-white rounded-2xl text-sm font-semibold hover:bg-red-50 hover:text-red-600 transition-all shadow-sm mt-2 cursor-pointer"
@@ -86,7 +105,7 @@ export default function Me() {
               <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                 <h3 className="text-lg font-bold text-gray-800">Personal Information</h3>
                 {!isEditing && (
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setIsEditing(true)}
                     className="text-indigo-600 font-medium hover:text-indigo-700 text-sm flex items-center gap-1 cursor-pointer"
@@ -103,12 +122,11 @@ export default function Me() {
                 {/* Full Name - 1 dòng */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">Full Name</label>
-                  <input 
+                  <input
                     {...register("fullName")}
                     disabled={!isEditing}
-                    className={`w-full p-2.5 border rounded-lg outline-none transition-all ${
-                      isEditing ? 'border-indigo-500 bg-white shadow-sm' : 'border-gray-200 bg-gray-50 text-gray-500'
-                    }`}
+                    className={`w-full p-2.5 border rounded-lg outline-none transition-all ${isEditing ? 'border-indigo-500 bg-white shadow-sm' : 'border-gray-200 bg-gray-50 text-gray-500'
+                      }`}
                   />
                 </div>
 
@@ -116,22 +134,19 @@ export default function Me() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">Username</label>
-                    <input 
+                    <input
                       {...register("username")}
-                      disabled={!isEditing}
-                      className={`w-full p-2.5 border rounded-lg outline-none transition-all ${
-                        isEditing ? 'border-indigo-500 bg-white shadow-sm' : 'border-gray-200 bg-gray-50 text-gray-500'
-                      }`}
+                      disabled={true}
+                      className={`w-full p-2.5 border rounded-lg outline-none transition-all border-gray-200 bg-gray-50 text-gray-500`}
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">Email Address</label>
-                    <input 
+                    <input
                       {...register("email")}
                       disabled={!isEditing}
-                      className={`w-full p-2.5 border rounded-lg outline-none transition-all ${
-                        isEditing ? 'border-indigo-500 bg-white shadow-sm' : 'border-gray-200 bg-gray-50 text-gray-500'
-                      }`}
+                      className={`w-full p-2.5 border rounded-lg outline-none transition-all ${isEditing ? 'border-indigo-500 bg-white shadow-sm' : 'border-gray-200 bg-gray-50 text-gray-500'
+                        }`}
                     />
                   </div>
                 </div>
@@ -140,7 +155,7 @@ export default function Me() {
               {/* Khu vực nút Save / Cancel */}
               {isEditing && (
                 <div className="p-6 bg-gray-50 rounded-b-2xl flex justify-end gap-3">
-                  <button 
+                  <button
                     type="button"
                     onClick={() => {
                       setIsEditing(false);
@@ -150,7 +165,7 @@ export default function Me() {
                   >
                     Cancel
                   </button>
-                  <button 
+                  <button
                     type="submit"
                     className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-all shadow-md cursor-pointer"
                   >
@@ -166,7 +181,7 @@ export default function Me() {
                 <h3 className="text-lg font-bold text-gray-800">Security</h3>
                 <p className="text-sm text-gray-500">Update your password to keep your account secure</p>
               </div>
-              <button type="button" className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all">
+              <button type="button" className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all cursor-pointer" onClick={() => router.push('/me/change-password')}>
                 Change Password
               </button>
             </div>

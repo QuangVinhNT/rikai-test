@@ -8,7 +8,7 @@ export const useUser = () => {
   const queryClient = useQueryClient();
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: number, payload: Pick<User, 'fullName' | 'email'>; }) => userService.updateUser(id, payload),
+    mutationFn: ({ id, payload }: { id: number, payload: Partial<Pick<User, 'fullName' | 'email' | 'password'>>; }) => userService.updateUser(id, payload),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['user', response.data.id] });

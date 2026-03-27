@@ -17,12 +17,12 @@ export const useAuth = () => {
       setAuth(user);
       toast.success(response.message);
       queryClient.clear();
-      router.refresh();
       if (user.role === 'ADMIN') {
         router.replace('/admin/users');
       } else if (user.role === 'USER') {
         router.replace('/');
       }
+      router.refresh();
     },
     onError: (error: any) => {
       const message = error?.data?.message || 'An error occured!';
@@ -51,8 +51,8 @@ export const useAuth = () => {
       toast.success(response.message);
       logout();
       queryClient.clear();
-      router.refresh();
       router.push('/login');
+      router.refresh();
     },
     onError: (error: any) => {
       const message = error?.data?.message || 'An error occured!';

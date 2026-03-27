@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -68,7 +69,12 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    const { fullName, email, isLocked } = updateUserDto;
+    const { fullName, email, isLocked, password } = updateUserDto;
+    let hashedPassword: string | undefined = undefined;
+    if (password) {
+      const saltOrRounds = 10;
+      hashedPassword = await bcrypt.hash(password, saltOrRounds);
+    }
     try {
       const updateResult = await this.prismaService.user.update({
         where: {
@@ -78,6 +84,7 @@ export class UsersService {
           fullName,
           email,
           isLocked,
+          password: hashedPassword,
         },
         select: {
           id: true,
