@@ -1,3 +1,4 @@
 export class UpdateCategoryDto {
-  categoryName: string;
+  categoryName?: string;
+  specificationsKey?: string[];
 }

@@ -1,64 +1,76 @@
 'use client';
 
-import React from 'react';
-import { 
-  HiChevronLeft, 
-  HiChevronRight, 
-  HiMagnifyingGlass, 
-  HiPlus, 
-  HiTrash,
-  HiSquares2X2,
-  HiChartPie,
-  HiPencilSquare
+import { Loading } from '@/components/ui';
+import { useCategory, useGetCategories } from '@/hooks';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import {
+  HiChevronLeft,
+  HiChevronRight,
+  HiExclamationTriangle,
+  HiMagnifyingGlass,
+  HiPencilSquare,
+  HiPlus,
+  HiTrash
 } from 'react-icons/hi2';
 
-// --- 1. Mock Data ---
-const MOCK_CATEGORIES = [
-  { id: 1, name: 'Smartphones', count: 124, status: 'Active', color: 'bg-blue-500' },
-  { id: 2, name: 'Laptops', count: 42, status: 'Active', color: 'bg-purple-500' },
-  { id: 3, name: 'Accessories', count: 512, status: 'Archived', color: 'bg-emerald-500' },
-  { id: 4, name: 'Wearables', count: 88, status: 'Active', color: 'bg-amber-500' },
-];
-
 export default function CategoryListPage() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [categoryToDelete, setCategoryToDelete] = useState<{ id: number; name: string; } | null>(null);
+
+  const page = searchParams.get('page') ?? '1';
+  const limit = searchParams.get('limit') ?? '5';
+
+  const { data, isLoading } = useGetCategories(+page, +limit);
+  const { deleteCategory, isDeleting } = useCategory();
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', newPage.toString());
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleLimitChange = (newLimit: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('limit', newLimit);
+    params.set('page', '1');
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleDelete = () => {
+    if (!categoryToDelete) return;
+    deleteCategory(categoryToDelete.id, {
+      onSuccess: () => {
+        setCategoryToDelete(null);
+      }
+    });
+  };
+
+  if (isLoading) return <Loading />;
+
   return (
-    <div className="h-full flex flex-col p-1 overflow-hidden">
-      
+    <div className="h-full flex flex-col p-1 overflow-hidden relative">
+
       {/* 1. Header & Actions */}
       <div className="shrink-0 mb-4 flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <h1 className="text-3xl font-black text-gray-900 tracking-tight">Categories</h1>
+        <h1 className="text-3xl font-black text-gray-900 tracking-tight italic">Categories</h1>
 
         <div className="flex items-center gap-3">
           <div className="relative">
             <HiMagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input 
-              type="text" 
-              placeholder="Search categories..." 
+            <input
+              type="text"
+              placeholder="Search categories..."
               className="pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-purple-50 focus:border-purple-400 outline-none w-64 transition-all shadow-sm"
             />
           </div>
-          <button className="bg-gray-900 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-purple-600 shadow-xl shadow-purple-100 transition-all flex items-center gap-2 active:scale-95 cursor-pointer">
+          <button className="bg-gray-900 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-purple-600 shadow-xl shadow-purple-100 transition-all flex items-center gap-2 active:scale-95 cursor-pointer" onClick={() => router.push('/admin/categories/create')}>
             <HiPlus size={20} strokeWidth={2} /> New Category
           </button>
         </div>
-      </div>
-
-      {/* 2. Stats Cards */}
-      <div className="shrink-0 grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        {[
-          { label: 'Total Categories', value: '12', icon: HiSquares2X2, color: 'text-purple-600', bg: 'bg-purple-50' },
-          { label: 'Items Organized', value: '856', icon: HiChartPie, color: 'text-blue-600', bg: 'bg-blue-50' },
-        ].map((stat, i) => (
-          <div key={i} className="bg-white p-4 rounded-[28px] border border-gray-100 flex items-center gap-5 shadow-sm">
-            <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center`}>
-              <stat.icon size={28} />
-            </div>
-            <div>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{stat.label}</p>
-              <h4 className="text-2xl font-black text-gray-900">{stat.value}</h4>
-            </div>
-          </div>
-        ))}
       </div>
 
       {/* 3. Main Table Section */}
@@ -68,41 +80,53 @@ export default function CategoryListPage() {
             <thead className="sticky top-0 bg-white/80 backdrop-blur-md z-10">
               <tr>
                 <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">Category Name</th>
-                <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50 text-center">Linked Products</th>
+                <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50 text-center">Schema Keys</th>
                 <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">Status</th>
                 <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {MOCK_CATEGORIES.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50/50 transition-colors group cursor-pointer">
+              {data?.data.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50/50 transition-colors group cursor-pointer" onClick={() => router.push(`/admin/categories/${item.id}`)}>
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-3">
-                      <div className={`w-2.5 h-2.5 rounded-full ${item.color} shadow-sm`} />
+                      <div className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-sm" />
                       <div>
-                        <p className="text-sm font-black text-gray-900">{item.name}</p>
-                        <p className="text-[10px] font-bold text-gray-400 mt-0.5 italic">Category Reference #{item.id}</p>
+                        <p className="text-sm font-black text-gray-900">{item.categoryName}</p>
+                        <p className="text-[10px] font-bold text-gray-400 mt-0.5 italic tracking-tighter">Reference ID: #{item.id.toString().padStart(3, '0')}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-5 text-center">
-                    <span className="text-sm font-black text-gray-900 bg-gray-100 px-3 py-1 rounded-lg">
-                      {item.count}
-                    </span>
+                    <div className="flex flex-wrap justify-center gap-1">
+                      {item.specificationsKey?.length > 0 ? (
+                        item.specificationsKey.slice(0, 3).map((key: string, idx: number) => (
+                          <span key={idx} className="text-[9px] font-black text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200">
+                            {key}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-[9px] font-bold text-gray-300 italic uppercase">No schema keys</span>
+                      )}
+                      {item.specificationsKey?.length > 3 && (
+                        <span className="text-[9px] font-black text-purple-600">+{item.specificationsKey.length - 3}</span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-5">
-                    <span className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tight 
-                      ${item.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-500'}`}
-                    >
-                      {item.status}
+                    <span className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tight bg-emerald-50 text-emerald-600">
+                      ACTIVE
                     </span>
                   </td>
                   <td className="px-8 py-5 text-right">
                     <div className="flex justify-end gap-1">
-                      <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-all cursor-pointer">
-                        <HiPencilSquare size={18} />
-                      </button>
-                      <button className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCategoryToDelete({ id: item.id, name: item.categoryName });
+                        }}
+                        className="p-2.5 text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer"
+                      >
                         <HiTrash size={18} />
                       </button>
                     </div>
@@ -117,26 +141,86 @@ export default function CategoryListPage() {
         <div className="px-8 py-5 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest">Rows per page:</span>
-            <select className="appearance-none bg-white border border-gray-200 text-purple-600 text-xs font-bold py-2 pl-4 pr-8 rounded-xl outline-none shadow-sm cursor-pointer hover:border-purple-300 transition-all">
-              <option>10</option>
-              <option>20</option>
-              <option>50</option>
-            </select>
+            <div className="relative group">
+              <select
+                value={limit}
+                onChange={(e) => handleLimitChange(e.target.value)}
+                className="appearance-none bg-white border border-gray-200 text-purple-600 text-xs font-bold py-2 pl-4 pr-10 rounded-xl hover:border-purple-400 hover:ring-4 hover:ring-purple-50 transition-all cursor-pointer outline-none shadow-sm"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-purple-500 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           </div>
 
           <div className="flex gap-2">
-            <button className="p-2 border border-gray-200 bg-white rounded-xl text-gray-400 hover:text-purple-600 transition-all hover:bg-purple-50">
+            <button
+              disabled={+page === 1}
+              onClick={() => handlePageChange(+page - 1)}
+              className="p-2.5 border border-gray-200 bg-white rounded-xl text-gray-600 hover:text-purple-600 hover:border-purple-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm active:scale-90"
+            >
               <HiChevronLeft size={20} />
             </button>
             <div className="flex items-center px-5 bg-white border border-gray-200 rounded-xl text-[11px] font-black text-purple-600 shadow-sm uppercase tracking-tighter">
-              Page <span className="ml-1 text-gray-900">1</span>
+              Page <span className="ml-1 text-gray-900">{page}</span>
             </div>
-            <button className="p-2 border border-gray-200 bg-white rounded-xl text-gray-400 hover:text-purple-600 transition-all hover:bg-purple-50">
+            <button
+              disabled={+page >= (data?.meta?.lastPage || 1)}
+              onClick={() => handlePageChange(+page + 1)}
+              className="p-2.5 border border-gray-200 bg-white rounded-xl text-gray-600 hover:text-purple-600 hover:border-purple-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm active:scale-90"
+            >
               <HiChevronRight size={20} />
             </button>
           </div>
         </div>
       </div>
+
+      {/* --- DELETE CONFIRMATION MODAL --- */}
+      {categoryToDelete && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-[6px] animate-in fade-in duration-300">
+          <div className="bg-white max-w-md w-full rounded-[40px] p-10 shadow-2xl shadow-gray-900/20 border border-gray-100 animate-in zoom-in-95 duration-300">
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center">
+                <HiExclamationTriangle size={40} />
+              </div>
+            </div>
+
+            <div className="text-center space-y-3">
+              <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter italic">Delete category?</h3>
+              <p className="text-sm font-bold text-gray-400 leading-relaxed">
+                {`You're about to remove`} <span className="text-gray-900 font-black">{categoryToDelete.name}</span>.
+                This might affect all products linked to this category.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 mt-10">
+              <button
+                disabled={isDeleting}
+                onClick={() => setCategoryToDelete(null)}
+                className="px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-gray-400 hover:bg-gray-50 transition-all cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={isDeleting}
+                onClick={handleDelete}
+                className="px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest bg-red-500 text-white shadow-xl shadow-red-100 hover:bg-red-600 transition-all active:scale-95 cursor-pointer disabled:opacity-50 flex items-center justify-center"
+              >
+                {isDeleting ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : 'Confirm Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }

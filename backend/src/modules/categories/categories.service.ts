@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -20,6 +24,7 @@ export class CategoriesService {
     const newCategory = await this.prismaService.category.create({
       data: {
         categoryName: categoryName.trim(),
+        specificationsKey: createCategoryDto.specificationsKey || [],
       },
     });
     return {
@@ -41,7 +46,7 @@ export class CategoriesService {
     ]);
 
     return {
-      sucess: true,
+      success: true,
       message: 'Get all categories successfully!',
       data,
       meta: {
@@ -53,14 +58,31 @@ export class CategoriesService {
     };
   }
 
+  async findOne(id: number) {
+    const category = await this.prismaService.category.findUnique({
+      where: { id },
+    });
+
+    if (!category) {
+      throw new NotFoundException(`Category with ID ${id} not found`);
+    }
+
+    return {
+      success: true,
+      message: 'Get category successfully!',
+      data: category,
+    };
+  }
+
   async update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    const { categoryName } = updateCategoryDto;
+    const { categoryName, specificationsKey } = updateCategoryDto;
     const updateResult = await this.prismaService.category.update({
       where: {
         id,
       },
       data: {
-        categoryName: categoryName.trim(),
+        ...(categoryName && { categoryName: categoryName.trim() }),
+        ...(specificationsKey && { specificationsKey }),
       },
     });
     return {

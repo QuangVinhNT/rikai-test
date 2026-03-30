@@ -36,6 +36,11 @@ export class CategoriesController {
     return this.categoriesService.findAll(page, limit);
   }
 
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.categoriesService.findOne(+id);
+  }
+
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Put(':id')
