@@ -12,18 +12,19 @@ export const categoryService = {
     return response.data;
   },
 
-  // createCategory: async (payload: Partial<Pick<Category, 'name' | 'slug' | 'description'>>): Promise<BaseResponse<Category>> => {
-  //   const response = await axiosInstance.post('/categories', payload);
-  //   return response.data;
-  // },
+  createCategory: async (payload: Partial<Pick<Category, 'categoryName' | 'specificationsKey'>>): Promise<BaseResponse<Category>> => {
+    const response = await axiosInstance.post('/categories', payload);
+    return response.data;
+  },
 
-  // updateCategory: async (id: number, payload: Partial<Pick<Category, 'name' | 'slug' | 'description'>>): Promise<BaseResponse<Category>> => {
-  //   const response = await axiosInstance.put(`/categories/${id}`, payload);
-  //   return response.data;
-  // },
+  updateCategory: async (id: number, payload: Partial<Pick<Category, 'categoryName'
+    | 'specificationsKey'>>): Promise<BaseResponse<Category>> => {
+    const response = await axiosInstance.put(`/categories/${id}`, payload);
+    return response.data;
+  },
 
-  // deleteCategory: async (id: number): Promise<BaseResponse<{ id: number; name: string }>> => {
-  //   const response = await axiosInstance.delete(`/categories/${id}`);
-  //   return response.data;
-  // }
-}
+  deleteCategory: async (id: number): Promise<BaseResponse<{ id: number; name: string; }>> => {
+    const response = await axiosInstance.delete(`/categories/${id}`);
+    return response.data;
+  }
+};

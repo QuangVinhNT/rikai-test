@@ -21,8 +21,12 @@ export const productService = {
     return response.data;
   },
 
-  updateProduct: async (id: number, payload: Partial<Product>): Promise<BaseResponse<Product>> => {
-    const response = await axiosInstance.put(`/products/${id}`, payload);
+  updateProduct: async (id: number, formData: FormData): Promise<BaseResponse<Product>> => {
+    const response = await axiosInstance.put(`/products/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
 

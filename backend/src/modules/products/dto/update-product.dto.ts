@@ -4,4 +4,6 @@ export class UpdateProductDto {
   price?: number;
   quantity?: number;
   categoryId?: number;
+  images?: string[];
+  specifications?: Record<string, any>;
 }

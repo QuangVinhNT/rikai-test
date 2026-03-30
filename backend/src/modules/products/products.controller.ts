@@ -65,11 +65,36 @@ export class ProductsController {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Put(':id')
-  update(
+  @UseInterceptors(FileInterceptor('images'))
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProductDto: UpdateProductDto,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.productsService.update(id, updateProductDto);
+    let images = updateProductDto.images;
+
+    if (file) {
+      const result = await this.cloudinaryService.uploadFile(file);
+      images = [result.secure_url];
+    }
+
+    const categoryId = updateProductDto.categoryId
+      ? Number(updateProductDto.categoryId)
+      : undefined;
+    const price = updateProductDto.price
+      ? Number(updateProductDto.price)
+      : undefined;
+    const quantity = updateProductDto.quantity
+      ? Number(updateProductDto.quantity)
+      : undefined;
+
+    return this.productsService.update(id, {
+      ...updateProductDto,
+      images,
+      categoryId,
+      price,
+      quantity,
+    });
   }
 
   @UseGuards(AuthGuard, RolesGuard)

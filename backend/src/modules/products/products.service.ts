@@ -81,6 +81,13 @@ export class ProductsService {
       where: {
         id,
       },
+      include: {
+        category: {
+          select: {
+            categoryName: true,
+          },
+        },
+      },
     });
     if (!product) {
       throw new NotFoundException('Product is not exist!');
@@ -93,8 +100,15 @@ export class ProductsService {
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
-    const { productName, description, price, quantity, categoryId } =
-      updateProductDto;
+    const {
+      productName,
+      description,
+      price,
+      quantity,
+      categoryId,
+      images,
+      specifications,
+    } = updateProductDto;
     const updateResult = await this.prismaService.product.update({
       where: {
         id,
@@ -105,6 +119,8 @@ export class ProductsService {
         price,
         quantity,
         categoryId,
+        images,
+        specifications,
       },
     });
     return {

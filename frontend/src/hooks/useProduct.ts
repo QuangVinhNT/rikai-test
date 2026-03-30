@@ -1,6 +1,5 @@
 'use client';
 import { productService } from '@/services';
-import { Product } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -20,7 +19,7 @@ export const useProduct = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: number, payload: Partial<Product> }) => productService.updateProduct(id, payload),
+    mutationFn: ({ id, formData }: { id: number, formData: FormData }) => productService.updateProduct(id, formData),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['product', response.data.id] });

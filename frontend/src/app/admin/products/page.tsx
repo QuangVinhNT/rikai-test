@@ -1,12 +1,14 @@
 'use client';
 
 import { Loading } from '@/components/ui';
-import { useGetProducts } from '@/hooks';
+import { useGetCategories, useGetProducts, useProduct } from '@/hooks';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import {
   HiChevronLeft,
   HiChevronRight,
   HiExclamationCircle,
+  HiExclamationTriangle,
   HiInboxStack,
   HiMagnifyingGlass,
   HiPlus,
@@ -18,11 +20,15 @@ export default function ProductListPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  
+  const [productToDelete, setProductToDelete] = useState<{ id: number; name: string } | null>(null);
 
   const page = searchParams.get('page') ?? '1';
   const limit = searchParams.get('limit') ?? '5';
 
   const { data } = useGetProducts(+page, +limit);
+  const { data: categories } = useGetCategories();
+  const { deleteProduct, isDeleting } = useProduct();
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
@@ -37,8 +43,17 @@ export default function ProductListPage() {
     router.push(`${pathname}?${params.toString()}`);
   };
 
+  const handleDelete = () => {
+    if (!productToDelete) return;
+    deleteProduct(productToDelete.id, {
+      onSuccess: () => {
+        setProductToDelete(null);
+      }
+    });
+  };
+
   return (
-    <div className="h-full flex flex-col p-1 overflow-hidden">
+    <div className="h-full flex flex-col p-1 overflow-hidden relative">
 
       {/* 1. Header & Actions */}
       <div className="shrink-0 mb-4 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -59,14 +74,14 @@ export default function ProductListPage() {
         </div>
       </div>
 
-      {data && data.data ? (
+      {data && data.data && categories && categories.data ? (
         <>
           {/* 2. Stats Cards */}
           <div className="shrink-0 grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             {[
               { label: 'Total Products', value: data.meta?.total?.toLocaleString() || '0', icon: HiInboxStack, color: 'text-blue-600', bg: 'bg-blue-50' },
-              { label: 'Active Categories', value: '12', icon: HiTag, color: 'text-purple-600', bg: 'bg-purple-50' },
-              { label: 'Out of Stock', value: '03', icon: HiExclamationCircle, color: 'text-red-600', bg: 'bg-red-50' },
+              { label: 'Active Categories', value: categories.meta?.total, icon: HiTag, color: 'text-purple-600', bg: 'bg-purple-50' },
+              { label: 'Out of Stock', value: '0', icon: HiExclamationCircle, color: 'text-red-600', bg: 'bg-red-50' },
             ].map((stat, i) => (
               <div key={i} className="bg-white p-4 rounded-[28px] border border-gray-100 flex items-center gap-5 shadow-sm">
                 <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center`}>
@@ -90,40 +105,37 @@ export default function ProductListPage() {
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-bottom border-gray-50">Category</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-bottom border-gray-50">Price</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-bottom border-gray-50">Stock</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-bottom border-gray-50">Status</th>
-                    <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-bottom border-gray-50 text-right">Actions</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-bottom border-gray-50 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {data.data.map((product) => (
-                    <tr key={product.id} className="hover:bg-gray-50/50 transition-colors cursor-pointer">
+                    <tr key={product.id} className="hover:bg-gray-50/50 transition-colors cursor-pointer group" onClick={() => router.push(`/admin/products/${product.id}`)}>
                       <td className="px-8 py-5">
                         <div>
                           <p className="text-sm font-black text-gray-900">{product.productName}</p>
-                          <p className="text-[10px] font-bold text-gray-400 mt-0.5">ID: #{product.id.toString().padStart(4, '0')}</p>
+                          <p className="text-[10px] font-bold text-gray-400 mt-0.5 tracking-tighter">ID: #{product.id.toString().padStart(4, '0')}</p>
                         </div>
                       </td>
                       <td className="px-6 py-5 text-sm font-bold text-gray-600">{product.category?.categoryName}</td>
-                      <td className="px-6 py-5 text-sm font-black text-gray-900">${product.price.toLocaleString()}</td>
-                      <td className="px-6 py-5 text-sm font-bold text-gray-600">{product.quantity} units</td>
+                      <td className="px-6 py-5 text-sm font-black text-gray-900">{product.price.toLocaleString()}₫</td>
                       <td className="px-6 py-5">
-                        {product.quantity > 10 ? (
-                          <span className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tight bg-emerald-50 text-emerald-600">
-                            In Stock
-                          </span>
-                        ) : product.quantity > 0 ? (
-                          <span className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tight bg-amber-50 text-amber-600">
-                            Low Stock
-                          </span>
-                        ) : (
-                          <span className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tight bg-red-50 text-red-600">
-                            Out of Stock
-                          </span>
-                        )}
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-black text-gray-900">{product.quantity}</span>
+                            {product.quantity <= 10 && (
+                                <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${product.quantity > 0 ? 'bg-amber-500' : 'bg-red-500'}`} />
+                            )}
+                          </div>
                       </td>
                       <td className="px-8 py-5 text-center">
                         <div className="flex justify-end gap-2">
-                          <button className="p-2.5 text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer">
+                          <button 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setProductToDelete({ id: product.id, name: product.productName });
+                            }}
+                            className="p-2.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all cursor-pointer"
+                           >
                             <HiTrash size={18} />
                           </button>
                         </div>
@@ -181,6 +193,46 @@ export default function ProductListPage() {
         </>
       ) : (
         <Loading />
+      )}
+
+      {/* --- DELETE CONFIRMATION MODAL --- */}
+      {productToDelete && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-[6px] animate-in fade-in duration-300">
+           <div className="bg-white max-w-md w-full rounded-[40px] p-10 shadow-2xl shadow-gray-900/20 border border-gray-100 animate-in zoom-in-95 duration-300">
+              <div className="flex justify-center mb-6">
+                <div className="w-20 h-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center">
+                   <HiExclamationTriangle size={40} />
+                </div>
+              </div>
+              
+              <div className="text-center space-y-3">
+                <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter italic">Delete product?</h3>
+                <p className="text-sm font-bold text-gray-400">
+                    {`You're about to remove`} <span className="text-gray-900 font-black">{productToDelete.name}</span>. 
+                    This action is final and cannot be undone.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 mt-10">
+                <button 
+                  disabled={isDeleting}
+                  onClick={() => setProductToDelete(null)}
+                  className="px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-gray-400 hover:bg-gray-50 transition-all cursor-pointer disabled:opacity-50"
+                >
+                    Keep it
+                </button>
+                <button 
+                  disabled={isDeleting}
+                  onClick={handleDelete}
+                  className="px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest bg-red-500 text-white shadow-xl shadow-red-100 hover:bg-red-600 transition-all active:scale-95 cursor-pointer disabled:opacity-50 flex items-center justify-center"
+                >
+                    {isDeleting ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : 'Delete Now'}
+                </button>
+              </div>
+           </div>
+        </div>
       )}
 
       <style jsx global>{`

@@ -2,6 +2,7 @@
 
 import { useGetProducts } from '@/hooks';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import {
   HiAdjustmentsHorizontal,
   HiArrowUpRight,
@@ -14,6 +15,7 @@ import {
 export default function EnhancedProductList() {
   const { data: productsResponse, isLoading } = useGetProducts(1, 100); // Fetch more for main page
   const products = productsResponse?.data || [];
+  const router = useRouter();
 
   if (isLoading) return (
     <div className="flex items-center justify-center h-full gap-4">
@@ -92,7 +94,7 @@ export default function EnhancedProductList() {
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12">
         {products.map((product) => (
-          <div key={product.id} className="group relative cursor-pointer">
+          <div key={product.id} className="group relative cursor-pointer" onClick={() => router.push(`/products/${product.id}`)}>
             {/* Card Body */}
             <div className="relative aspect-square bg-white rounded-[42px] overflow-hidden p-4 shadow-sm group-hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] transition-all duration-700">
 
