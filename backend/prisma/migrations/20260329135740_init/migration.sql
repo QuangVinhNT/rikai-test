@@ -17,20 +17,21 @@ CREATE TABLE "USERS" (
 );
 
 -- CreateTable
-CREATE TABLE "Session" (
+CREATE TABLE "SESSION" (
     "id" SERIAL NOT NULL,
     "refreshToken" TEXT NOT NULL,
     "userId" INTEGER NOT NULL,
     "expiresAt" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "SESSION_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "CATEGORIES" (
     "id" SERIAL NOT NULL,
     "categoryName" TEXT NOT NULL,
+    "specificationsKey" TEXT[],
 
     CONSTRAINT "CATEGORIES_pkey" PRIMARY KEY ("id")
 );
@@ -43,6 +44,8 @@ CREATE TABLE "PRODUCTS" (
     "price" DOUBLE PRECISION NOT NULL,
     "quantity" INTEGER NOT NULL DEFAULT 0,
     "categoryId" INTEGER NOT NULL,
+    "images" TEXT[],
+    "specifications" JSONB NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -65,7 +68,7 @@ CREATE UNIQUE INDEX "USERS_username_key" ON "USERS"("username");
 CREATE UNIQUE INDEX "USERS_email_key" ON "USERS"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Session_refreshToken_key" ON "Session"("refreshToken");
+CREATE UNIQUE INDEX "SESSION_refreshToken_key" ON "SESSION"("refreshToken");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "CATEGORIES_categoryName_key" ON "CATEGORIES"("categoryName");
@@ -74,7 +77,7 @@ CREATE UNIQUE INDEX "CATEGORIES_categoryName_key" ON "CATEGORIES"("categoryName"
 CREATE UNIQUE INDEX "PRODUCTS_productName_key" ON "PRODUCTS"("productName");
 
 -- AddForeignKey
-ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "USERS"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "SESSION" ADD CONSTRAINT "SESSION_userId_fkey" FOREIGN KEY ("userId") REFERENCES "USERS"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PRODUCTS" ADD CONSTRAINT "PRODUCTS_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "CATEGORIES"("id") ON DELETE CASCADE ON UPDATE CASCADE;

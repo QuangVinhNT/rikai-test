@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import {
   HiChevronLeft,
   HiChevronRight,
@@ -20,6 +21,7 @@ const MOCK_PRODUCTS = [
 ];
 
 export default function ProductListPage() {
+  const router = useRouter();
   return (
     <div className="h-full flex flex-col p-1 overflow-hidden">
 
@@ -36,7 +38,7 @@ export default function ProductListPage() {
               className="pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-blue-50 focus:border-blue-400 outline-none w-64 transition-all shadow-sm"
             />
           </div>
-          <button className="bg-gray-900 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-blue-600 shadow-xl shadow-gray-200 transition-all flex items-center gap-2 active:scale-95 cursor-pointer">
+          <button className="bg-gray-900 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-blue-600 shadow-xl shadow-gray-200 transition-all flex items-center gap-2 active:scale-95 cursor-pointer" onClick={() => router.push('/admin/products/create')}>
             <HiPlus size={20} strokeWidth={2} /> Add Product
           </button>
         </div>

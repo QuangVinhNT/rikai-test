@@ -12,7 +12,14 @@ export class ProductsService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(createProductDto: CreateProductDto) {
-    const { productName, description, price, categoryId } = createProductDto;
+    const {
+      productName,
+      description,
+      price,
+      categoryId,
+      images,
+      specifications,
+    } = createProductDto;
     const productExist = await this.prismaService.product.findFirst({
       where: {
         productName: productName.trim(),
@@ -28,6 +35,8 @@ export class ProductsService {
         price,
         quantity: 0,
         categoryId,
+        specifications,
+        images,
       },
     });
     return {

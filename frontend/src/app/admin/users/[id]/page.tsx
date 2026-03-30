@@ -1,9 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useGetUser, useUser } from '@/hooks';
+import { userStore } from '@/stores';
+import { Role } from '@/types';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { FaUserTag } from 'react-icons/fa';
 import {
   HiArrowLeft,
   HiCheckCircle,
@@ -13,11 +17,7 @@ import {
   HiPencilSquare,
   HiUser
 } from 'react-icons/hi2';
-import { FaUserTag } from 'react-icons/fa';
-import { useGetUser, useUser } from '@/hooks';
-import { userStore } from '@/stores';
 import { toast } from 'sonner';
-import { Role, User } from '@/types';
 
 interface InputFieldProps {
   label: string;

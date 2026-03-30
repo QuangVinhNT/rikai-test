@@ -14,17 +14,17 @@ datasource db {
 }
 
 model User {
-  id Int @default(autoincrement()) @id
-  username String @unique
-  email String @unique
-  password String
-  fullName String?
-  isLocked Boolean @default(false)
-  role Role @default(USER)
+  id                Int                @id @default(autoincrement())
+  username          String             @unique
+  email             String             @unique
+  password          String
+  fullName          String?
+  isLocked          Boolean            @default(false)
+  role              Role               @default(USER)
   favouriteProducts FavouriteProduct[]
-  sessions Session[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  sessions          Session[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @default(now()) @updatedAt
 
   @@map("USERS")
 }
@@ -35,43 +35,48 @@ enum Role {
 }
 
 model Session {
-  id Int @default(autoincrement()) @id
-  refreshToken String @unique
-  userId Int
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  refreshToken String   @unique
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  @@map("SESSION")
 }
 
 model Category {
-  id Int @default(autoincrement()) @id
-  categoryName String @unique
-  products Product[]
+  id                Int       @id @default(autoincrement())
+  categoryName      String    @unique
+  products          Product[]
+  specificationsKey String[]
 
   @@map("CATEGORIES")
 }
 
 model Product {
-  id Int @default(autoincrement()) @id
-  productName String @unique
-  description String?
-  price Float
-  quantity Int @default(0)
-  categoryId Int
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  favouritedBy FavouriteProduct[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id             Int                @id @default(autoincrement())
+  productName    String             @unique
+  description    String?
+  price          Float
+  quantity       Int                @default(0)
+  categoryId     Int
+  category       Category           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  favouritedBy   FavouriteProduct[]
+  images         String[]
+  specifications Json
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @default(now()) @updatedAt
 
   @@map("PRODUCTS")
 }
 
 model FavouriteProduct {
-  userId Int
+  userId    Int
   productId Int
   createdAt DateTime @default(now())
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@id([userId, productId])
   @@map("FAVOURITE_PRODUCTS")

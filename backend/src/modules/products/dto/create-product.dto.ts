@@ -3,4 +3,6 @@ export class CreateProductDto {
   description: string;
   price: number;
   categoryId: number;
+  images: string[];
+  specifications: Record<string, any>;
 }

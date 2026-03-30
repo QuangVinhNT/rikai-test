@@ -9,6 +9,8 @@ import {
   Query,
   ParseIntPipe,
   Put,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -16,16 +18,35 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CloudinaryService } from '@/common/cloudinary/cloudinary.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import 'multer';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('ADMIN')
+  @UseInterceptors(FileInterceptor('images'))
   @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.create(createProductDto);
+  async create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createProductDto: CreateProductDto,
+  ) {
+    const result = await this.cloudinaryService.uploadFile(file);
+    const imageUrl = result.secure_url;
+    const categoryId = Number(createProductDto.categoryId);
+    const price = Number(createProductDto.price);
+    return this.productsService.create({
+      ...createProductDto,
+      categoryId,
+      price,
+      images: [imageUrl],
+    });
   }
 
   @Get()
