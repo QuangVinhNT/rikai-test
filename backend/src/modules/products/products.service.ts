@@ -53,6 +53,13 @@ export class ProductsService {
         skip,
         take: limit,
         orderBy: [{ productName: 'asc' }, { createdAt: 'desc' }],
+        include: {
+          category: {
+            select: {
+              categoryName: true,
+            },
+          },
+        },
       }),
       this.prismaService.product.count(),
     ]);
