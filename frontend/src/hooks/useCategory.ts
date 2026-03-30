@@ -55,10 +55,10 @@ export const useCategory = () => {
   };
 };
 
-export const useGetCategories = (page?: number, limit?: number) => {
+export const useGetCategories = (page?: number, limit?: number, search?: string) => {
   return useQuery({
-    queryKey: ['categories', page, limit],
-    queryFn: () => categoryService.getCategories(page || 1, limit || 10),
+    queryKey: ['categories', page, limit, search],
+    queryFn: () => categoryService.getCategories(page, limit, search),
     placeholderData: (prev) => prev
   });
 };

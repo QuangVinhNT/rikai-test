@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Prisma } from '@/generated/prisma/client';
 
 @Injectable()
 export class CategoriesService {
@@ -34,15 +35,31 @@ export class CategoriesService {
     };
   }
 
-  async findAll(page: number = 1, limit: number = 10) {
+  async findAll(page: number = 1, limit: number = 10, search?: string) {
     const skip = (page - 1) * limit;
-    const [data, total] = await Promise.all([
+
+    const where: Prisma.CategoryWhereInput = {
+      ...(search && {
+        categoryName: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      }),
+    };
+
+    const [data, total] = await this.prismaService.$transaction([
       this.prismaService.category.findMany({
+        where,
         skip,
         take: limit,
         orderBy: [{ categoryName: 'asc' }],
+        include: {
+          _count: {
+            select: { products: true },
+          },
+        },
       }),
-      this.prismaService.category.count(),
+      this.prismaService.category.count({ where }),
     ]);
 
     return {
@@ -61,6 +78,11 @@ export class CategoriesService {
   async findOne(id: number) {
     const category = await this.prismaService.category.findUnique({
       where: { id },
+      include: {
+        _count: {
+          select: { products: true },
+        },
+      },
     });
 
     if (!category) {

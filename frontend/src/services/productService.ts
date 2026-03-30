@@ -2,8 +2,19 @@ import axiosInstance from '@/apis/axiosInstance';
 import { BaseResponse, Product } from '@/types';
 
 export const productService = {
-  getProducts: async (page?: number, limit?: number): Promise<BaseResponse<Product[]>> => {
-    const response = await axiosInstance.get(`/products?page=${page || ''}&limit=${limit || ''}`);
+  getProducts: async (
+    page?: number,
+    limit?: number,
+    search?: string,
+    categoryId?: number,
+  ): Promise<BaseResponse<Product[]>> => {
+    const params = new URLSearchParams();
+    if (page) params.append('page', String(page));
+    if (limit) params.append('limit', String(limit));
+    if (search) params.append('search', search || '');
+    if (categoryId) params.append('categoryId', String(categoryId));
+
+    const response = await axiosInstance.get(`/products?${params.toString()}`);
     return response.data;
   },
 

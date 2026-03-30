@@ -44,7 +44,7 @@ export default function UserProductDetailPage() {
   if (!product) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
       <p className="text-lg font-black text-gray-900 uppercase italic">Product Not Found</p>
-      <Link href="/admin/products" className="text-blue-600 font-bold text-sm hover:underline italic">Back to products</Link>
+      <Link href="/products" className="text-blue-600 font-bold text-sm hover:underline italic">Back to products</Link>
     </div>
   );
 
@@ -53,7 +53,7 @@ export default function UserProductDetailPage() {
 
       {/* 1. Header Navigation */}
       <div className="shrink-0 px-4 py-4 flex items-center justify-between z-10">
-        <Link href="/admin/products" className="p-3 bg-gray-50 rounded-2xl text-gray-900 hover:bg-gray-100 transition-all active:scale-90 shadow-sm border border-gray-100">
+        <Link href="/products" className="p-3 bg-gray-50 rounded-2xl text-gray-900 hover:bg-gray-100 transition-all active:scale-90 shadow-sm border border-gray-100">
           <HiChevronLeft size={24} />
         </Link>
         <div className="flex gap-2">

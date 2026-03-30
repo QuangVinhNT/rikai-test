@@ -3,7 +3,7 @@
 import { Loading } from '@/components/ui';
 import { useGetCategories, useGetProducts, useProduct } from '@/hooks';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   HiChevronLeft,
   HiChevronRight,
@@ -13,7 +13,8 @@ import {
   HiMagnifyingGlass,
   HiPlus,
   HiTag,
-  HiTrash
+  HiTrash,
+  HiFunnel
 } from 'react-icons/hi2';
 
 export default function ProductListPage() {
@@ -22,13 +23,33 @@ export default function ProductListPage() {
   const searchParams = useSearchParams();
   
   const [productToDelete, setProductToDelete] = useState<{ id: number; name: string } | null>(null);
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') ?? '');
 
   const page = searchParams.get('page') ?? '1';
   const limit = searchParams.get('limit') ?? '5';
+  const categoryId = searchParams.get('categoryId') ?? '';
 
-  const { data } = useGetProducts(+page, +limit);
-  const { data: categories } = useGetCategories();
+  const { data, isLoading: productsLoading } = useGetProducts(+page, +limit, searchParams.get('search') ?? '', categoryId ? +categoryId : undefined);
+  const { data: categoriesResponse } = useGetCategories(1, 100); // Get all categories for filter
+  const categories = categoriesResponse?.data || [];
+  
   const { deleteProduct, isDeleting } = useProduct();
+
+  // Debounce search
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      const params = new URLSearchParams(searchParams);
+      if (searchTerm) {
+        params.set('search', searchTerm);
+      } else {
+        params.delete('search');
+      }
+      params.set('page', '1');
+      router.push(`${pathname}?${params.toString()}`);
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
@@ -42,6 +63,17 @@ export default function ProductListPage() {
     params.set('page', '1');
     router.push(`${pathname}?${params.toString()}`);
   };
+
+  const handleCategoryFilter = (id: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (id) {
+      params.set('categoryId', id);
+    } else {
+      params.delete('categoryId');
+    }
+    params.set('page', '1');
+    router.push(`${pathname}?${params.toString()}`);
+  }
 
   const handleDelete = () => {
     if (!productToDelete) return;
@@ -57,31 +89,50 @@ export default function ProductListPage() {
 
       {/* 1. Header & Actions */}
       <div className="shrink-0 mb-4 flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <h1 className="text-3xl font-black text-gray-900 tracking-tight">Products</h1>
+        <h1 className="text-3xl font-black text-gray-900 tracking-tight italic">Products</h1>
 
         <div className="flex items-center gap-3">
+          {/* Category Filter */}
+          <div className="relative group">
+            <HiFunnel className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-blue-500 transition-colors" size={16} />
+            <select
+              value={categoryId}
+              onChange={(e) => handleCategoryFilter(e.target.value)}
+              className="pl-10 pr-10 py-3 bg-white border border-gray-100 rounded-2xl text-xs font-black uppercase tracking-tighter outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-400 transition-all cursor-pointer shadow-sm appearance-none min-w-[180px] italic"
+            >
+              <option value="">All Categories</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.categoryName}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Search Box */}
           <div className="relative">
-            <HiMagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <HiMagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold" size={18} />
             <input
               type="text"
-              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Quick search..."
               className="pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-blue-50 focus:border-blue-400 outline-none w-64 transition-all shadow-sm"
             />
           </div>
+
           <button className="bg-gray-900 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-blue-600 shadow-xl shadow-gray-200 transition-all flex items-center gap-2 active:scale-95 cursor-pointer" onClick={() => router.push('/admin/products/create')}>
             <HiPlus size={20} strokeWidth={2} /> Add Product
           </button>
         </div>
       </div>
 
-      {data && data.data && categories && categories.data ? (
+      {data && data.data && !productsLoading ? (
         <>
           {/* 2. Stats Cards */}
           <div className="shrink-0 grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             {[
-              { label: 'Total Products', value: data.meta?.total?.toLocaleString() || '0', icon: HiInboxStack, color: 'text-blue-600', bg: 'bg-blue-50' },
-              { label: 'Active Categories', value: categories.meta?.total, icon: HiTag, color: 'text-purple-600', bg: 'bg-purple-50' },
-              { label: 'Out of Stock', value: '0', icon: HiExclamationCircle, color: 'text-red-600', bg: 'bg-red-50' },
+              { label: 'Found Products', value: data.meta?.total?.toLocaleString() || '0', icon: HiInboxStack, color: 'text-blue-600', bg: 'bg-blue-50' },
+              { label: 'Categories', value: categoriesResponse?.meta?.total, icon: HiTag, color: 'text-purple-600', bg: 'bg-purple-50' },
+              { label: 'Out of Stock', value: data?.additionalData.outOfStock, icon: HiExclamationCircle, color: 'text-red-600', bg: 'bg-red-50' },
             ].map((stat, i) => (
               <div key={i} className="bg-white p-4 rounded-[28px] border border-gray-100 flex items-center gap-5 shadow-sm">
                 <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center`}>
@@ -89,7 +140,7 @@ export default function ProductListPage() {
                 </div>
                 <div>
                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{stat.label}</p>
-                  <h4 className="text-2xl font-black text-gray-900">{stat.value}</h4>
+                  <h4 className="text-xl font-black text-gray-900 uppercase truncate max-w-[150px]">{stat.value}</h4>
                 </div>
               </div>
             ))}
@@ -105,23 +156,25 @@ export default function ProductListPage() {
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-bottom border-gray-50">Category</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-bottom border-gray-50">Price</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-bottom border-gray-50">Stock</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-bottom border-gray-50 text-right">Actions</th>
+                    <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest border-bottom border-gray-50 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-gray-50 text-emerald-900">
                   {data.data.map((product) => (
                     <tr key={product.id} className="hover:bg-gray-50/50 transition-colors cursor-pointer group" onClick={() => router.push(`/admin/products/${product.id}`)}>
                       <td className="px-8 py-5">
                         <div>
-                          <p className="text-sm font-black text-gray-900">{product.productName}</p>
-                          <p className="text-[10px] font-bold text-gray-400 mt-0.5 tracking-tighter">ID: #{product.id.toString().padStart(4, '0')}</p>
+                          <p className="text-sm font-black text-gray-900 italic tracking-tighter uppercase">{product.productName}</p>
+                          <p className="text-[10px] font-bold text-gray-400 mt-0.5 tracking-tighter uppercase italic">Ref: #{product.id.toString()}</p>
                         </div>
                       </td>
-                      <td className="px-6 py-5 text-sm font-bold text-gray-600">{product.category?.categoryName}</td>
-                      <td className="px-6 py-5 text-sm font-black text-gray-900">{product.price.toLocaleString()}₫</td>
+                      <td className="px-6 py-5">
+                          <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[9px] font-black uppercase tracking-widest italic">{product.category?.categoryName}</span>
+                      </td>
+                      <td className="px-6 py-5 text-sm font-black text-gray-900 tracking-tighter">{product.price.toLocaleString()}₫</td>
                       <td className="px-6 py-5">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-black text-gray-900">{product.quantity}</span>
+                            <span className="text-sm font-black text-gray-900 tracking-tighter">{product.quantity} Units</span>
                             {product.quantity <= 10 && (
                                 <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${product.quantity > 0 ? 'bg-amber-500' : 'bg-red-500'}`} />
                             )}
@@ -142,6 +195,14 @@ export default function ProductListPage() {
                       </td>
                     </tr>
                   ))}
+                  {data.data.length === 0 && (
+                    <tr>
+                         <td colSpan={5} className="py-20 text-center">
+                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] italic">No discovery matches</p>
+                             <p className="text-[9px] text-gray-300 mt-1 uppercase">Try adjusting your filters</p>
+                         </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -206,10 +267,10 @@ export default function ProductListPage() {
               </div>
               
               <div className="text-center space-y-3">
-                <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter italic">Delete product?</h3>
+                <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter italic leading-none">Discard product?</h3>
                 <p className="text-sm font-bold text-gray-400">
-                    {`You're about to remove`} <span className="text-gray-900 font-black">{productToDelete.name}</span>. 
-                    This action is final and cannot be undone.
+                    {`You're about to discard`} <span className="text-gray-900 font-black tracking-tighter uppercase italic">{productToDelete.name}</span>. 
+                    This record removal is permanent.
                 </p>
               </div>
 
@@ -217,9 +278,9 @@ export default function ProductListPage() {
                 <button 
                   disabled={isDeleting}
                   onClick={() => setProductToDelete(null)}
-                  className="px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-gray-400 hover:bg-gray-50 transition-all cursor-pointer disabled:opacity-50"
+                  className="px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-gray-400 hover:bg-gray-50 transition-all cursor-pointer disabled:opacity-50 italic"
                 >
-                    Keep it
+                    Retain record
                 </button>
                 <button 
                   disabled={isDeleting}
@@ -228,7 +289,7 @@ export default function ProductListPage() {
                 >
                     {isDeleting ? (
                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : 'Delete Now'}
+                    ) : 'Confirm Discard'}
                 </button>
               </div>
            </div>

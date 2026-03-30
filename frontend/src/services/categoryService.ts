@@ -2,8 +2,13 @@ import axiosInstance from '@/apis/axiosInstance';
 import { BaseResponse, Category } from '@/types';
 
 export const categoryService = {
-  getCategories: async (page?: number, limit?: number): Promise<BaseResponse<Category[]>> => {
-    const response = await axiosInstance.get(`/categories?page=${page || ''}&limit=${limit || ''}`);
+  getCategories: async (page?: number, limit?: number, search?: string): Promise<BaseResponse<Category[]>> => {
+    const params = new URLSearchParams();
+    if (page) params.append('page', String(page));
+    if (limit) params.append('limit', String(limit));
+    if (search) params.append('search', search);
+
+    const response = await axiosInstance.get(`/categories?${params.toString()}`);
     return response.data;
   },
 

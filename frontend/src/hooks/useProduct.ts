@@ -54,11 +54,16 @@ export const useProduct = () => {
   };
 };
 
-export const useGetProducts = (page?: number, limit?: number) => {
+export const useGetProducts = (
+  page?: number,
+  limit?: number,
+  search?: string,
+  categoryId?: number,
+) => {
   return useQuery({
-    queryKey: ['products', page, limit],
-    queryFn: () => productService.getProducts(page || 1, limit || 10),
-    placeholderData: (prev) => prev
+    queryKey: ['products', page, limit, search, categoryId],
+    queryFn: () => productService.getProducts(page, limit, search, categoryId),
+    placeholderData: (prev) => prev,
   });
 };
 

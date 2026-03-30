@@ -138,9 +138,8 @@ export default function CategoryDetailPage() {
 
             <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm space-y-4 text-center">
               <div className="pt-4">
-                <div className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-black uppercase tracking-tight italic">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Active
+                <div className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-black capitalize">
+                  Product Quantity: {category._count?.products}
                 </div>
               </div>
             </div>

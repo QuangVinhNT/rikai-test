@@ -6,6 +6,7 @@ import {
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { Prisma } from '@/generated/prisma/client';
 
 @Injectable()
 export class ProductsService {
@@ -46,10 +47,29 @@ export class ProductsService {
     };
   }
 
-  async findAll(page: number = 1, limit: number = 10) {
+  async findAll(
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+    categoryId?: number,
+  ) {
     const skip = (page - 1) * limit;
-    const [data, total] = await Promise.all([
+
+    const where: Prisma.ProductWhereInput = {
+      ...(search && {
+        productName: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      }),
+      ...(categoryId && {
+        categoryId,
+      }),
+    };
+
+    const [data, total, outOfStock] = await this.prismaService.$transaction([
       this.prismaService.product.findMany({
+        where,
         skip,
         take: limit,
         orderBy: [{ productName: 'asc' }, { createdAt: 'desc' }],
@@ -61,8 +81,15 @@ export class ProductsService {
           },
         },
       }),
-      this.prismaService.product.count(),
+      this.prismaService.product.count({ where }),
+      this.prismaService.product.count({
+        where: {
+          ...where,
+          quantity: 0,
+        },
+      }),
     ]);
+
     return {
       success: true,
       message: 'Get all products successfully!',
@@ -72,6 +99,9 @@ export class ProductsService {
         currentPage: page,
         lastPage: Math.ceil(total / limit),
         limit,
+      },
+      additionalData: {
+        outOfStock,
       },
     };
   }

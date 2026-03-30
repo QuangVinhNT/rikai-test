@@ -8,7 +8,7 @@ export class UsersService {
   constructor(private readonly prismaService: PrismaService) {}
   async findAll(page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
-    const [data, total] = await Promise.all([
+    const [data, total] = await this.prismaService.$transaction([
       this.prismaService.user.findMany({
         skip: skip,
         take: limit,
